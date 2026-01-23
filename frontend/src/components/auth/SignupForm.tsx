@@ -1,0 +1,112 @@
+'use client';
+
+import React, { useState } from 'react';
+import { UserRegistration } from '../../../../shared/types/user';
+import { useAuth } from '../../context/auth-context';
+import { useRouter } from 'next/navigation';
+
+interface SignupFormProps {
+  onSwitchToLogin?: () => void;
+  onSuccess?: () => void;
+}
+
+const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin, onSuccess }) => {
+  const [formData, setFormData] = useState<UserRegistration>({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState<string | null>(null);
+  const { register } = useAuth();
+  const router = useRouter();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await register(formData);
+      setError(null);
+      // Navigate directly to dashboard after successful registration
+      router.push('/dashboard');
+      onSuccess?.(); // Call onSuccess if provided
+    } catch (err) {
+      setError('An error occurred during registration. Please try again.');
+      console.error('Registration error:', err);
+    }
+  };
+
+  return (
+    <>
+      {error && (
+        <div className="bg-red-500/20 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-6 backdrop-blur-sm">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <div className="mb-6">
+          <label htmlFor="email" className="block text-gray-300 text-sm font-medium mb-2">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-white placeholder-gray-400"
+            placeholder="your@email.com"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label htmlFor="password" className="block text-gray-300 text-sm font-medium mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            minLength={8}
+            className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-white placeholder-gray-400"
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02]"
+        >
+          Create Account
+        </button>
+      </form>
+
+      {onSwitchToLogin && (
+        <div className="mt-6 text-center">
+          <p className="text-gray-400">
+            Already have an account?{' '}
+            <button
+              onClick={onSwitchToLogin}
+              className="text-pink-400 hover:text-pink-300 font-medium transition-colors duration-300"
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default SignupForm;

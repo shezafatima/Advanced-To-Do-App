@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c:*)",
+      "Bash(uvicorn src.main:app --host 0.0.0.0 --port 8000)",
+      "Bash(dir \"E:\\\\hackathon-2\\\\frontend\\\\src\\\\app\\\\dashboard\")",
+      "Bash(dir \"E:\\\\hackathon-2\\\\frontend\\\\src\\\\components\\\\auth\\\\SignupForm.tsx\")",
+      "Bash(uvicorn src.main:app --reload --host 0.0.0.0 --port 8000)"
+    ]
+  }
+}

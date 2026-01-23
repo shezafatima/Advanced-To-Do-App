@@ -1,0 +1,174 @@
+# API Contract for Advanced Todo Features
+
+## Task Management Endpoints
+
+### GET /todos/advanced
+**Description**: Retrieve user's tasks with advanced features (priorities, tags, due dates, etc.)
+
+**Request**:
+- Headers: Authorization: Bearer {token}
+- Query Parameters:
+  - priority: low|medium|high (optional)
+  - tag: tag_name (optional)
+  - due_date_from: YYYY-MM-DD (optional)
+  - due_date_to: YYYY-MM-DD (optional)
+  - sort_by: priority|due_date|created_date (optional)
+  - status: pending|completed (optional)
+
+**Response**:
+- 200: OK
+  ```json
+  {
+    "tasks": [
+      {
+        "id": "uuid-string",
+        "title": "Task title",
+        "description": "Task description",
+        "completed": false,
+        "priority": "medium",
+        "due_date": "2023-12-31T10:00:00Z",
+        "recurrence_rule": "FREQ=DAILY;INTERVAL=1",
+        "tags": [
+          {
+            "id": "tag-uuid",
+            "name": "work",
+            "color": "#ff6b6b"
+          }
+        ],
+        "created_at": "2023-01-01T00:00:00Z",
+        "updated_at": "2023-01-01T00:00:00Z"
+      }
+    ]
+  }
+  ```
+- 401: Unauthorized
+- 403: Forbidden
+- 500: Internal Server Error
+
+### POST /todos/advanced
+**Description**: Create a new task with advanced features
+
+**Request**:
+- Headers: Authorization: Bearer {token}, Content-Type: application/json
+- Body:
+  ```json
+  {
+    "title": "Task title",
+    "description": "Task description",
+    "priority": "high",
+    "due_date": "2023-12-31T10:00:00Z",
+    "recurrence_rule": "FREQ=WEEKLY;BYDAY=MO",
+    "tags": ["work", "important"]
+  }
+  ```
+
+**Response**:
+- 201: Created
+  ```json
+  {
+    "id": "uuid-string",
+    "title": "Task title",
+    "description": "Task description",
+    "completed": false,
+    "priority": "high",
+    "due_date": "2023-12-31T10:00:00Z",
+    "recurrence_rule": "FREQ=WEEKLY;BYDAY=MO",
+    "tags": [
+      {
+        "id": "tag-uuid",
+        "name": "work",
+        "color": "#ff6b6b"
+      }
+    ],
+    "created_at": "2023-01-01T00:00:00Z",
+    "updated_at": "2023-01-01T00:00:00Z"
+  }
+  ```
+- 400: Bad Request (validation error)
+- 401: Unauthorized
+- 500: Internal Server Error
+
+## Profile Management Endpoints
+
+### GET /profiles/me
+**Description**: Get current user's profile
+
+**Request**:
+- Headers: Authorization: Bearer {token}
+
+**Response**:
+- 200: OK
+  ```json
+  {
+    "id": "profile-uuid",
+    "display_name": "John Doe",
+    "preferred_language": "en",
+    "theme_preference": "dark",
+    "notification_preferences": {
+      "toast_notifications": true,
+      "email_reminders": false
+    },
+    "avatar": "base64-encoded-image-data",
+    "created_at": "2023-01-01T00:00:00Z",
+    "updated_at": "2023-01-01T00:00:00Z"
+  }
+  ```
+- 401: Unauthorized
+- 404: Profile not found
+- 500: Internal Server Error
+
+### PUT /profiles/me
+**Description**: Update current user's profile
+
+**Request**:
+- Headers: Authorization: Bearer {token}, Content-Type: application/json
+- Body:
+  ```json
+  {
+    "display_name": "Jane Smith",
+    "preferred_language": "ur",
+    "notification_preferences": {
+      "toast_notifications": false,
+      "email_reminders": true
+    },
+    "avatar": "base64-encoded-image-data"
+  }
+  ```
+
+**Response**:
+- 200: OK (returns updated profile)
+- 400: Bad Request (validation error)
+- 401: Unauthorized
+- 500: Internal Server Error
+
+## Task Sharing Endpoints
+
+### POST /tasks/{task_id}/share
+**Description**: Share a task with another user
+
+**Request**:
+- Path: /tasks/{task_id}/share
+- Headers: Authorization: Bearer {token}, Content-Type: application/json
+- Body:
+  ```json
+  {
+    "user_email": "collaborator@example.com",
+    "role": "editor"
+  }
+  ```
+
+**Response**:
+- 200: OK
+  ```json
+  {
+    "task_id": "task-uuid",
+    "shared_with": "collaborator@example.com",
+    "role": "editor",
+    "shared_at": "2023-01-01T00:00:00Z"
+  }
+  ```
+- 400: Bad Request (invalid role or user)
+- 401: Unauthorized (not task owner)
+- 403: Forbidden (insufficient permissions)
+- 404: Task not found
+- 500: Internal Server Error

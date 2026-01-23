@@ -68,6 +68,9 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T007 Create base models/entities that all stories depend on
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
+- [ ] T010 Verify constitution compliance setup for state & data standards
+- [ ] T011 [P] Implement observability infrastructure per constitution requirements
+- [ ] T012 Setup specification-driven infrastructure processes per constitution
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

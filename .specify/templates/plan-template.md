@@ -31,7 +31,41 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### State & Data Standards Compliance
+- [ ] All state changes will be explicit and specification-driven
+- [ ] No hidden or implicit state mutations will be permitted
+- [ ] Data models will preserve backward compatibility unless explicitly revised
+- [ ] Destructive data changes will have explicit migration specifications
+- [ ] AI state mutations will have validated action specifications
+
+### Evolution & Compatibility Rules Compliance
+- [ ] Each phase will build upon the previous phase without regressions
+- [ ] Public interfaces will remain stable unless explicitly revised by specification
+- [ ] Breaking changes will have explicit deprecation and migration specifications
+- [ ] Previous phase behavior will remain demonstrable after evolution
+
+### AI Autonomy & Safety Standards Compliance
+- [ ] AI agents will only perform actions explicitly defined in specifications
+- [ ] AI agents will request clarification when required parameters are missing
+- [ ] AI agents will not hallucinate identifiers, state, or system behavior
+- [ ] All AI-initiated actions will be auditable and reversible where applicable
+
+### Interface & Contract Standards Compliance
+- [ ] All interfaces will have explicit contracts defining inputs, outputs, errors, and side effects
+- [ ] Event-driven interactions will specify producers, consumers, and delivery guarantees
+- [ ] No component will rely on undocumented behavior of another component
+
+### Observability & Debuggability Standards Compliance
+- [ ] All non-trivial operations will produce observable outcomes
+- [ ] Errors will be surfaced with meaningful, user-appropriate messages
+- [ ] System behavior will be explainable through logs, responses, or agent traces
+- [ ] AI decisions will be traceable to specifications and inputs
+
+### Infrastructure & Deployment Standards Compliance
+- [ ] Infrastructure will be treated as a first-class, specification-driven component
+- [ ] Deployment artifacts will be reproducible and deterministic
+- [ ] Environment-specific behavior will be explicitly specified
+- [ ] Infrastructure changes will not alter application semantics without specification updates
 
 ## Project Structure
 
