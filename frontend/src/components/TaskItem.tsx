@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PriorityIndicator } from './ui/PriorityIndicator';
-import { TagChip } from './ui/TagChip';
+import PriorityIndicator from './ui/PriorityIndicator';
+import TagChip from './ui/TagChip';
 import { AdvancedTodo, Tag } from '@/types/todo';
 
 interface TaskItemProps {

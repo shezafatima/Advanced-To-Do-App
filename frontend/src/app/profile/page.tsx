@@ -75,16 +75,25 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type } = e.target;
     if (name.startsWith('notificationPreferences.')) {
       const notificationKey = name.split('.')[1] as keyof typeof formData.notificationPreferences;
-      setFormData(prev => ({
-        ...prev,
-        notificationPreferences: {
+      setFormData(prev => {
+        const newNotificationPrefs = {
           ...prev.notificationPreferences,
-          [notificationKey]: typeof value === 'string' ? value === 'true' : value
-        }
-      }));
+          [notificationKey]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+        };
+
+        // Ensure required boolean fields are always present
+        return {
+          ...prev,
+          notificationPreferences: {
+            toastNotifications: !!newNotificationPrefs.toastNotifications,
+            emailReminders: !!newNotificationPrefs.emailReminders,
+            ...newNotificationPrefs
+          }
+        };
+      });
     } else {
       setFormData(prev => ({
         ...prev,
@@ -106,13 +115,22 @@ const ProfilePage: React.FC = () => {
     const { name, checked } = e.target;
     if (name.startsWith('notificationPreferences.')) {
       const notificationKey = name.split('.')[1] as keyof typeof formData.notificationPreferences;
-      setFormData(prev => ({
-        ...prev,
-        notificationPreferences: {
+      setFormData(prev => {
+        const newNotificationPrefs = {
           ...prev.notificationPreferences,
           [notificationKey]: checked
-        }
-      }));
+        };
+
+        // Ensure required boolean fields are always present
+        return {
+          ...prev,
+          notificationPreferences: {
+            toastNotifications: !!newNotificationPrefs.toastNotifications,
+            emailReminders: !!newNotificationPrefs.emailReminders,
+            ...newNotificationPrefs
+          }
+        };
+      });
     } else {
       setFormData(prev => ({
         ...prev,
@@ -256,7 +274,7 @@ const ProfilePage: React.FC = () => {
                           type="checkbox"
                           id="toastNotifications"
                           name="notificationPreferences.toastNotifications"
-                          checked={formData.notificationPreferences.toastNotifications}
+                          checked={formData.notificationPreferences?.toastNotifications ?? false}
                           onChange={handleCheckboxChange}
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-600 rounded bg-transparent"
                         />
@@ -270,7 +288,7 @@ const ProfilePage: React.FC = () => {
                           type="checkbox"
                           id="emailReminders"
                           name="notificationPreferences.emailReminders"
-                          checked={formData.notificationPreferences.emailReminders}
+                          checked={formData.notificationPreferences?.emailReminders ?? false}
                           onChange={handleCheckboxChange}
                           className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-600 rounded bg-transparent"
                         />

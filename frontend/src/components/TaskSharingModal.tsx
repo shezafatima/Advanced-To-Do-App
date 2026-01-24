@@ -56,7 +56,7 @@ const TaskSharingModal: React.FC<TaskSharingModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Share Task">
       <div className="p-6">
         <h2 className="text-2xl font-bold text-gray-200 mb-6">Share Task</h2>
 

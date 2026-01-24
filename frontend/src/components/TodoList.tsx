@@ -39,21 +39,21 @@ const TodoList: React.FC<TodoListProps> = () => {
 
       // Apply filters
       if (filterPriority !== 'all') {
-        filteredTodos = filteredTodos.filter(todo => todo.priority === filterPriority);
+        filteredTodos = filteredTodos.filter((todo: AdvancedTodo) => todo.priority === filterPriority);
       }
 
       if (filterStatus !== 'all') {
         if (filterStatus === 'pending') {
-          filteredTodos = filteredTodos.filter(todo => !todo.completed);
+          filteredTodos = filteredTodos.filter((todo: AdvancedTodo) => !todo.completed);
         } else if (filterStatus === 'completed') {
-          filteredTodos = filteredTodos.filter(todo => todo.completed);
+          filteredTodos = filteredTodos.filter((todo: AdvancedTodo) => todo.completed);
         }
       }
 
       if (filterDueDate !== 'all') {
         const now = new Date();
         if (filterDueDate === 'overdue') {
-          filteredTodos = filteredTodos.filter(todo =>
+          filteredTodos = filteredTodos.filter((todo: AdvancedTodo) =>
             todo.dueDate && new Date(todo.dueDate) < now && !todo.completed
           );
         } else if (filterDueDate === 'today') {
@@ -62,7 +62,7 @@ const TodoList: React.FC<TodoListProps> = () => {
           const tomorrow = new Date(today);
           tomorrow.setDate(tomorrow.getDate() + 1);
 
-          filteredTodos = filteredTodos.filter(todo =>
+          filteredTodos = filteredTodos.filter((todo: AdvancedTodo) =>
             todo.dueDate &&
             new Date(todo.dueDate) >= today &&
             new Date(todo.dueDate) < tomorrow
@@ -72,7 +72,7 @@ const TodoList: React.FC<TodoListProps> = () => {
           const endOfWeek = new Date(today);
           endOfWeek.setDate(today.getDate() + 7); // Next 7 days
 
-          filteredTodos = filteredTodos.filter(todo =>
+          filteredTodos = filteredTodos.filter((todo: AdvancedTodo) =>
             todo.dueDate &&
             new Date(todo.dueDate) >= today &&
             new Date(todo.dueDate) <= endOfWeek
@@ -84,14 +84,14 @@ const TodoList: React.FC<TodoListProps> = () => {
       let sortedTodos = [...filteredTodos]; // Create a copy to avoid mutating the original array
 
       if (sortBy === 'priority') {
-        sortedTodos.sort((a, b) => {
-          const priorityOrder = { high: 3, medium: 2, low: 1 };
+        sortedTodos.sort((a: AdvancedTodo, b: AdvancedTodo) => {
+          const priorityOrder: Record<'high' | 'medium' | 'low', number> = { high: 3, medium: 2, low: 1 };
           return sortOrder === 'asc'
             ? priorityOrder[a.priority] - priorityOrder[b.priority]
             : priorityOrder[b.priority] - priorityOrder[a.priority];
         });
       } else if (sortBy === 'due_date') {
-        sortedTodos.sort((a, b) => {
+        sortedTodos.sort((a: AdvancedTodo, b: AdvancedTodo) => {
           const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
           const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
 
@@ -102,7 +102,7 @@ const TodoList: React.FC<TodoListProps> = () => {
           }
         });
       } else if (sortBy === 'created_date') {
-        sortedTodos.sort((a, b) => {
+        sortedTodos.sort((a: AdvancedTodo, b: AdvancedTodo) => {
           const timeA = new Date(a.createdAt).getTime();
           const timeB = new Date(b.createdAt).getTime();
 
@@ -139,7 +139,13 @@ const TodoList: React.FC<TodoListProps> = () => {
 
   const handleUpdateTodo = async (id: string, updates: Partial<AdvancedTodo>) => {
     try {
-      const updatedTodo = await todoService.update(id, updates);
+      // Convert Tag[] to string[] for the API call
+      const apiUpdates = {
+        ...updates,
+        tags: updates.tags ? (updates.tags as any as string[]) : undefined
+      };
+
+      const updatedTodo = await todoService.update(id, apiUpdates);
       setTodos(todos.map(todo => (todo.id === id ? updatedTodo.data : todo)));
       showSuccess('Task updated successfully!');
     } catch (err) {
