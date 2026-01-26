@@ -7,77 +7,84 @@ import sqlite3
 import contextlib
 import asyncio
 
+# Global variables to hold the engines
+_engine = None
+_async_engine = None
 
-def create_engine_with_fallback():
+
+def get_engine():
     """
-    Create database engine with appropriate configuration based on database type.
+    Get or create the database engine with appropriate configuration based on database type.
+    This is lazy-loaded to avoid connection issues during import.
     """
-    if settings.database_url.startswith("sqlite"):
-        # SQLite doesn't support connection timeout in connect_args
-        return create_engine(
-            settings.database_url,
-            echo=settings.db_echo,  # Set to True for debugging SQL queries
-            connect_args={
-                "check_same_thread": False  # Required for SQLite thread safety
-            }
-        )
-    else:
-        # For PostgreSQL and other databases, use connection pooling
-        return create_engine(
-            settings.database_url,
-            echo=settings.db_echo,  # Set to True for debugging SQL queries
-            poolclass=QueuePool,    # Use QueuePool for connection pooling
-            pool_size=10,           # Number of connections to maintain
-            max_overflow=20,        # Additional connections beyond pool_size
-            pool_pre_ping=True,     # Verify connections before use
-            pool_recycle=300,       # Recycle connections every 5 minutes
-            pool_timeout=30,        # Timeout for getting a connection from pool
-            connect_args={
-                "connect_timeout": 10  # Timeout for establishing connection
-            }
-        )
+    global _engine
+    if _engine is None:
+        if settings.database_url.startswith("sqlite"):
+            # SQLite doesn't support connection timeout in connect_args
+            _engine = create_engine(
+                settings.database_url,
+                echo=settings.db_echo,  # Set to True for debugging SQL queries
+                connect_args={
+                    "check_same_thread": False  # Required for SQLite thread safety
+                }
+            )
+        else:
+            # For PostgreSQL and other databases, use connection pooling
+            _engine = create_engine(
+                settings.database_url,
+                echo=settings.db_echo,  # Set to True for debugging SQL queries
+                poolclass=QueuePool,    # Use QueuePool for connection pooling
+                pool_size=10,           # Number of connections to maintain
+                max_overflow=20,        # Additional connections beyond pool_size
+                pool_pre_ping=True,     # Verify connections before use
+                pool_recycle=300,       # Recycle connections every 5 minutes
+                pool_timeout=30,        # Timeout for getting a connection from pool
+                connect_args={
+                    "connect_timeout": 10  # Timeout for establishing connection
+                }
+            )
+    return _engine
 
 
-def create_async_engine_with_fallback():
+def get_async_engine():
     """
-    Create async database engine with appropriate configuration based on database type.
+    Get or create the async database engine with appropriate configuration based on database type.
+    This is lazy-loaded to avoid connection issues during import.
     """
-    if settings.database_url.startswith("sqlite"):
-        # SQLite doesn't support connection timeout in connect_args
-        return create_async_engine(
-            settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///"),
-            echo=settings.db_echo,  # Set to True for debugging SQL queries
-            connect_args={
-                "check_same_thread": False  # Required for SQLite thread safety
-            }
-        )
-    else:
-        # For PostgreSQL and other databases, use connection pooling
-        return create_async_engine(
-            settings.database_url,
-            echo=settings.db_echo,  # Set to True for debugging SQL queries
-            poolclass=QueuePool,    # Use QueuePool for connection pooling
-            pool_size=10,           # Number of connections to maintain
-            max_overflow=20,        # Additional connections beyond pool_size
-            pool_pre_ping=True,     # Verify connections before use
-            pool_recycle=300,       # Recycle connections every 5 minutes
-            pool_timeout=30,        # Timeout for getting a connection from pool
-            connect_args={
-                "connect_timeout": 10  # Timeout for establishing connection
-            }
-        )
-
-
-# Create the database engines with appropriate configuration
-engine = create_engine_with_fallback()
-async_engine = create_async_engine_with_fallback()
+    global _async_engine
+    if _async_engine is None:
+        if settings.database_url.startswith("sqlite"):
+            # SQLite doesn't support connection timeout in connect_args
+            _async_engine = create_async_engine(
+                settings.database_url.replace("sqlite:///", "sqlite+aiosqlite:///"),
+                echo=settings.db_echo,  # Set to True for debugging SQL queries
+                connect_args={
+                    "check_same_thread": False  # Required for SQLite thread safety
+                }
+            )
+        else:
+            # For PostgreSQL and other databases, use connection pooling
+            _async_engine = create_async_engine(
+                settings.database_url,
+                echo=settings.db_echo,  # Set to True for debugging SQL queries
+                poolclass=QueuePool,    # Use QueuePool for connection pooling
+                pool_size=10,           # Number of connections to maintain
+                max_overflow=20,        # Additional connections beyond pool_size
+                pool_pre_ping=True,     # Verify connections before use
+                pool_recycle=300,       # Recycle connections every 5 minutes
+                pool_timeout=30,        # Timeout for getting a connection from pool
+                connect_args={
+                    "connect_timeout": 10  # Timeout for establishing connection
+                }
+            )
+    return _async_engine
 
 
 def get_session():
     """
     Dependency to get a database session.
     """
-    with Session(engine) as session:
+    with Session(get_engine()) as session:
         yield session
 
 
@@ -86,7 +93,7 @@ async def get_async_session():
     """
     Async context manager to get an async database session.
     """
-    async with AsyncSession(async_engine) as session:
+    async with AsyncSession(get_async_engine()) as session:
         try:
             yield session
         finally:
@@ -100,7 +107,7 @@ def get_session_context():
     """
     @contextlib.contextmanager
     def session_context():
-        with Session(engine) as session:
+        with Session(get_engine()) as session:
             yield session
 
     return session_context()

@@ -6,7 +6,18 @@
       "Bash(dir \"E:\\\\hackathon-2\\\\frontend\\\\src\\\\app\\\\dashboard\")",
       "Bash(dir \"E:\\\\hackathon-2\\\\frontend\\\\src\\\\components\\\\auth\\\\SignupForm.tsx\")",
       "Bash(uvicorn src.main:app --reload --host 0.0.0.0 --port 8000)",
-      "Bash(npm run build)"
+      "Bash(npm run build)",
+      "Bash(dir backend /s)",
+      "Bash(cmd /c \"dir backend /s\")",
+      "Bash(cmd /c \"tasklist | findstr python\")",
+      "Bash(curl -I http://localhost:8000)",
+      "Bash(curl -I http://localhost:8080)",
+      "Bash(python init_db.py)",
+      "Bash(curl -X POST \"http://localhost:8000/todos\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxYjNhNTIzYS0wZGRiLTQ1NGQtYjZmZS04ZTRkODQ0MDEyMWQiLCJleHAiOjE3Njk1MzAzMTJ9.O9zbZ7rPXLDpF-UTKBUk-joRwOCuq2Nw7YSi0YaF72E\" -d '{\"\"title\"\":\"\"Test Todo\"\",\"\"description\"\":\"\"This is a test todo item\"\",\"\"priority\"\":\"\"low\"\",\"\"due_date\"\":\"\"2026-12-31T10:00:00\"\"}')",
+      "Bash(curl -X POST \"http://localhost:8000/todos\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxYjNhNTIzYS0wZGRiLTQ1NGQtYjZmZS04ZTRkODQ0MDEyMWQiLCJleHAiOjE3Njk1MzAzMTJ9.O9zbZ7rPXLDpF-UTKBUk-joRwOCuq2Nw7YSi0YaF72E\" -d '{\"\"title\"\":\"\"Test Todo\"\",\"\"description\"\":\"\"This is a test todo item\"\",\"\"priority\"\":\"\"low\"\"}')",
+      "Bash(curl -X POST \"http://localhost:8000/todos\" -H \"Content-Type: application/json\" -H \"Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxYjNhNTIzYS0wZGRiLTQ1NGQtYjZmZS04ZTRkODQ0MDEyMWQiLCJleHAiOjE3Njk1MzAzMTJ9.O9zbZ7rPXLDpF-UTKBUk-joRwOCuq2Nw7YSi0YaF72E\" -d '{\"\"title\"\":\"\"Test Todo\"\"}')",
+      "Bash(curl http://localhost:8001)",
+      "Bash(curl http://localhost:8001/health)"
     ]
   }
 }
