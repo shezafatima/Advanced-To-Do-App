@@ -6,51 +6,16 @@ if not os.environ.get('DATABASE_URL'):
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from sqlmodel import SQLModel
-from sqlalchemy import create_engine
-from src.database.session import get_engine
-from src.models.user import User
-from src.models.todo import Todo
-from src.models.profile import UserProfile
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize database tables on startup
-def initialize_database():
-    """Initialize database tables on startup"""
-    try:
-        logger.info("Initializing database tables...")
-        engine = get_engine()
-
-        # Create all tables
-        SQLModel.metadata.create_all(bind=engine)
-        logger.info("Database tables created successfully!")
-    except Exception as e:
-        logger.error(f"Error initializing database: {e}")
-        raise
-
-# Define lifespan to handle startup and shutdown events
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    logger.info("Starting up application...")
-    initialize_database()
-    logger.info("Application startup complete.")
-
-    yield  # This is where the application runs
-
-    # Shutdown
-    logger.info("Shutting down application...")
-
-# Create FastAPI app with lifespan
+# Create FastAPI app without lifespan (to avoid startup delays)
 app = FastAPI(
     title="Todo API for Production",
     version="1.0.0",
-    description="Todo API with full functionality for production deployment",
-    lifespan=lifespan
+    description="Todo API with full functionality for production deployment"
 )
 
 # CORS middleware
