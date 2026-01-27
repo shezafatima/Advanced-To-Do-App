@@ -4,18 +4,22 @@ if not os.environ.get('DATABASE_URL'):
     os.environ['DATABASE_URL'] = 'sqlite:///./todo_app_hf.db'
 
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create FastAPI app without lifespan (to avoid startup delays)
+# Create FastAPI app without any database dependencies at startup
 app = FastAPI(
     title="Todo API for Production",
     version="1.0.0",
-    description="Todo API with full functionality for production deployment"
+    description="Todo API with full functionality for production deployment",
+    # Exclude documentation routes from middleware
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 # CORS middleware
@@ -55,15 +59,16 @@ except ImportError as e:
 
 @app.get("/")
 def read_root():
+    # This must return instantly without any database access
     return {
         "message": "Todo API is running",
         "status": "success",
         "ready": True
-        # Removed database_url to prevent exposing credentials
     }
 
 @app.get("/health")
 def health_check():
+    # This must return instantly without any database access
     return {
         "status": "healthy",
         "service": "todo-api",
@@ -72,6 +77,7 @@ def health_check():
 
 @app.get("/ready")
 def ready_check():
+    # This must return instantly without any database access
     return {"ready": True}
 
 if __name__ == "__main__":

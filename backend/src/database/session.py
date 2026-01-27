@@ -7,7 +7,7 @@ import sqlite3
 import contextlib
 import asyncio
 
-# Global variables to hold the engines
+# Global variables to hold the engines (initialized to None)
 _engine = None
 _async_engine = None
 
@@ -30,17 +30,20 @@ def get_engine():
             )
         else:
             # For PostgreSQL and other databases, use connection pooling
+            # Neon-safe configuration
             _engine = create_engine(
                 settings.database_url,
                 echo=settings.db_echo,  # Set to True for debugging SQL queries
                 poolclass=QueuePool,    # Use QueuePool for connection pooling
-                pool_size=10,           # Number of connections to maintain
-                max_overflow=20,        # Additional connections beyond pool_size
-                pool_pre_ping=True,     # Verify connections before use
-                pool_recycle=300,       # Recycle connections every 5 minutes
-                pool_timeout=30,        # Timeout for getting a connection from pool
+                pool_size=5,            # Reduced pool size for Railway
+                max_overflow=10,        # Reduced overflow for Railway
+                pool_pre_ping=True,     # Verify connections before use (Neon-safe)
+                pool_recycle=300,       # Recycle connections every 5 minutes (Neon-safe)
+                pool_timeout=10,        # Reduced timeout
+                pool_reset_on_return='commit',  # Reset connection on return
                 connect_args={
-                    "connect_timeout": 10  # Timeout for establishing connection
+                    "connect_timeout": 5,   # Reduced timeout for Railway
+                    "command_timeout": 10,  # Add command timeout
                 }
             )
     return _engine
@@ -64,17 +67,20 @@ def get_async_engine():
             )
         else:
             # For PostgreSQL and other databases, use connection pooling
+            # Neon-safe configuration
             _async_engine = create_async_engine(
                 settings.database_url,
                 echo=settings.db_echo,  # Set to True for debugging SQL queries
                 poolclass=QueuePool,    # Use QueuePool for connection pooling
-                pool_size=10,           # Number of connections to maintain
-                max_overflow=20,        # Additional connections beyond pool_size
-                pool_pre_ping=True,     # Verify connections before use
-                pool_recycle=300,       # Recycle connections every 5 minutes
-                pool_timeout=30,        # Timeout for getting a connection from pool
+                pool_size=5,            # Reduced pool size for Railway
+                max_overflow=10,        # Reduced overflow for Railway
+                pool_pre_ping=True,     # Verify connections before use (Neon-safe)
+                pool_recycle=300,       # Recycle connections every 5 minutes (Neon-safe)
+                pool_timeout=10,        # Reduced timeout
+                pool_reset_on_return='commit',  # Reset connection on return
                 connect_args={
-                    "connect_timeout": 10  # Timeout for establishing connection
+                    "connect_timeout": 5,   # Reduced timeout for Railway
+                    "command_timeout": 10,  # Add command timeout
                 }
             )
     return _async_engine
