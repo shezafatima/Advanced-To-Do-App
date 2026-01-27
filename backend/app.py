@@ -93,8 +93,8 @@ def read_root():
     return {
         "message": "Todo API is running",
         "status": "success",
-        "ready": True,
-        "database_url": os.environ.get('DATABASE_URL', 'Not set')
+        "ready": True
+        # Removed database_url to prevent exposing credentials
     }
 
 @app.get("/health")

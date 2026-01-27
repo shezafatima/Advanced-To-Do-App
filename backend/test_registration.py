@@ -14,7 +14,7 @@ from src.services.user_service import UserService
 from src.config import settings
 
 def test_registration():
-    print(f"Using database: {settings.database_url}")
+    print("Starting user registration test...")
 
     try:
         # Create a session
