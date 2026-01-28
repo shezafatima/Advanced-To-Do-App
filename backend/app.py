@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Create the most minimal FastAPI app possible
+# Create the minimal FastAPI app that responds instantly
 app = FastAPI(
     title="Todo API",
     version="1.0.0",
-    description="Minimal Todo API for Railway deployment"
+    description="Todo API with full functionality for production deployment",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json"
 )
 
 # Minimal CORS setup
@@ -17,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Only the essential endpoints that must respond immediately
+# Essential endpoints that must respond immediately
 @app.get("/")
 def read_root():
     return {"message": "Todo API is running", "status": "success"}
@@ -29,6 +32,34 @@ def health_check():
 @app.get("/ready")
 def ready_check():
     return {"ready": True}
+
+# Now add the full API functionality
+# Import and add routes after basic endpoints are defined to ensure fast startup
+try:
+    from src.api.auth import router as auth_router
+    from src.api.todos import router as todos_router
+    from src.api.profiles import router as profiles_router
+
+    # Register the full API routes
+    app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+    app.include_router(todos_router, prefix="/todos", tags=["Todos"])
+    app.include_router(profiles_router, prefix="/profiles", tags=["Profiles"])
+
+    print("Full API routes registered successfully")
+except ImportError as e:
+    print(f"Could not import full API routes: {e}")
+    # Add fallback endpoints if full API routes fail to load
+    @app.get("/auth/status")
+    def auth_status():
+        return {"status": "auth service not available"}
+
+    @app.get("/todos/status")
+    def todos_status():
+        return {"status": "todos service not available"}
+
+    @app.get("/profiles/status")
+    def profiles_status():
+        return {"status": "profiles service not available"}
 
 if __name__ == "__main__":
     import uvicorn
