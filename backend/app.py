@@ -7,8 +7,7 @@ app = FastAPI(
     version="1.0.0",
     description="Todo API with full functionality for production deployment",
     docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json"
+
 )
 
 # Minimal CORS setup
