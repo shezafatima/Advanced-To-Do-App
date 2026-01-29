@@ -6,11 +6,19 @@ from ..config import settings
 import sqlite3
 import contextlib
 import asyncio
+from sqlmodel import SQLModel
 
 # Global variables to hold the engines (initialized to None)
 _engine = None
 _async_engine = None
 
+def ensure_database_initialized(engine):
+    """Ensure database tables are created"""
+    try:
+        # Create all tables
+        SQLModel.metadata.create_all(bind=engine)
+    except Exception as e:
+        print(f"Error initializing database: {e}")
 
 def get_engine():
     """
@@ -46,6 +54,10 @@ def get_engine():
                     "command_timeout": 10,  # Add command timeout
                 }
             )
+
+        # Initialize database tables after engine creation
+        ensure_database_initialized(_engine)
+
     return _engine
 
 
@@ -83,6 +95,7 @@ def get_async_engine():
                     "command_timeout": 10,  # Add command timeout
                 }
             )
+
     return _async_engine
 
 
