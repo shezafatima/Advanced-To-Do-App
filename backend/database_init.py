@@ -37,8 +37,9 @@ def initialize_database():
             print(f"Attempt {retry_count + 1} to connect to database...")
 
             # Test the connection first
+            from sqlalchemy import text
             with engine.connect() as conn:
-                result = conn.execute("SELECT 1")
+                result = conn.execute(text("SELECT 1"))
                 print("Database connection successful!")
 
             # Check if tables exist
