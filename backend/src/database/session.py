@@ -14,11 +14,20 @@ _async_engine = None
 
 def ensure_database_initialized(engine):
     """Ensure database tables are created"""
+    from sqlalchemy import inspect
     try:
-        # Create all tables
-        SQLModel.metadata.create_all(bind=engine)
+        # Check if tables exist first
+        inspector = inspect(engine)
+        existing_tables = inspector.get_table_names()
+
+        # Create all tables if they don't exist
+        if not existing_tables:  # Only create if no tables exist
+            SQLModel.metadata.create_all(bind=engine)
+        elif 'user' not in existing_tables:  # If critical tables are missing
+            SQLModel.metadata.create_all(bind=engine)
     except Exception as e:
         print(f"Error initializing database: {e}")
+        # Don't raise the exception to avoid blocking the request
 
 def get_engine():
     """
