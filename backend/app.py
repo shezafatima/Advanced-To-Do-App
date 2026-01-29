@@ -1,16 +1,66 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from sqlmodel import SQLModel
+from sqlalchemy import create_engine, inspect
+from src.database.session import get_engine
+import logging
 
-# Create the minimal FastAPI app that responds instantly
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Track initialization status
+db_initialized = False
+
+def initialize_database():
+    """Initialize database tables on startup"""
+    global db_initialized
+    if not db_initialized:
+        try:
+            logger.info("Initializing database tables...")
+            engine = get_engine()
+
+            # Check if tables exist
+            inspector = inspect(engine)
+            existing_tables = inspector.get_table_names()
+
+            if not existing_tables or 'user' not in existing_tables:
+                # Create all tables if none exist or critical tables are missing
+                SQLModel.metadata.create_all(bind=engine)
+                logger.info("Database tables created successfully!")
+            else:
+                logger.info("Database tables already exist, skipping initialization")
+
+            db_initialized = True
+        except Exception as e:
+            logger.error(f"Error initializing database: {e}")
+            raise
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting up application...")
+    initialize_database()
+    logger.info("Application startup complete.")
+
+    yield  # Run the application
+
+    # Shutdown
+    logger.info("Shutting down application...")
+
+# Create the FastAPI app with lifespan
 app = FastAPI(
     title="Todo API",
     version="1.0.0",
     description="Todo API with full functionality for production deployment",
     docs_url="/docs",
-
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    lifespan=lifespan
 )
 
-# Minimal CORS setup
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -32,8 +82,7 @@ def health_check():
 def ready_check():
     return {"ready": True}
 
-# Now add the full API functionality
-# Import and add routes after basic endpoints are defined to ensure fast startup
+# Import and add the full API functionality after basic setup
 try:
     from src.api.auth import router as auth_router
     from src.api.todos import router as todos_router
@@ -44,9 +93,9 @@ try:
     app.include_router(todos_router, prefix="/todos", tags=["Todos"])
     app.include_router(profiles_router, prefix="/profiles", tags=["Profiles"])
 
-    print("Full API routes registered successfully")
+    logger.info("Full API routes registered successfully")
 except ImportError as e:
-    print(f"Could not import full API routes: {e}")
+    logger.error(f"Could not import full API routes: {e}")
     # Add fallback endpoints if full API routes fail to load
     @app.get("/auth/status")
     def auth_status():
