@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -6,7 +7,21 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Create the minimal FastAPI app that responds instantly
+# Set environment variable before importing modules that need it
+if not os.environ.get('DATABASE_URL'):
+    os.environ['DATABASE_URL'] = 'sqlite:///./todo_app_hf.db'
+
+# Initialize database on startup
+from database_init import initialize_database
+
+try:
+    initialize_database()
+    logger.info("Database initialized successfully")
+except Exception as e:
+    logger.error(f"Database initialization failed: {e}")
+    # Continue anyway as it might be a temporary issue
+
+# Create the FastAPI app after database initialization
 app = FastAPI(
     title="Todo API",
     version="1.0.0",
@@ -16,7 +31,7 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
-# Minimal CORS setup
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
