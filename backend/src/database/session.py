@@ -60,7 +60,6 @@ def get_engine():
                 pool_reset_on_return='commit',  # Reset connection on return
                 connect_args={
                     "connect_timeout": 5,   # Reduced timeout for Railway
-                    "command_timeout": 10,  # Add command timeout
                 }
             )
 
@@ -101,7 +100,6 @@ def get_async_engine():
                 pool_reset_on_return='commit',  # Reset connection on return
                 connect_args={
                     "connect_timeout": 5,   # Reduced timeout for Railway
-                    "command_timeout": 10,  # Add command timeout
                 }
             )
 

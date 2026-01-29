@@ -1,66 +1,22 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
-from sqlmodel import SQLModel
-from sqlalchemy import create_engine, inspect
-from src.database.session import get_engine
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Track initialization status
-db_initialized = False
-
-def initialize_database():
-    """Initialize database tables on startup"""
-    global db_initialized
-    if not db_initialized:
-        try:
-            logger.info("Initializing database tables...")
-            engine = get_engine()
-
-            # Check if tables exist
-            inspector = inspect(engine)
-            existing_tables = inspector.get_table_names()
-
-            if not existing_tables or 'user' not in existing_tables:
-                # Create all tables if none exist or critical tables are missing
-                SQLModel.metadata.create_all(bind=engine)
-                logger.info("Database tables created successfully!")
-            else:
-                logger.info("Database tables already exist, skipping initialization")
-
-            db_initialized = True
-        except Exception as e:
-            logger.error(f"Error initializing database: {e}")
-            raise
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup
-    logger.info("Starting up application...")
-    initialize_database()
-    logger.info("Application startup complete.")
-
-    yield  # Run the application
-
-    # Shutdown
-    logger.info("Shutting down application...")
-
-# Create the FastAPI app with lifespan
+# Create the minimal FastAPI app that responds instantly
 app = FastAPI(
     title="Todo API",
     version="1.0.0",
     description="Todo API with full functionality for production deployment",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json",
-    lifespan=lifespan
+    openapi_url="/openapi.json"
 )
 
-# CORS middleware
+# Minimal CORS setup
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
